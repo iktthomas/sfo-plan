@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <title>Plan for dagen</title>
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+
   <style>
     :root {
       --main-color: #4a90e2;
@@ -41,7 +42,6 @@
       font-weight: bold;
       color: #333;
       user-select: none;
-      position: static;
     }
 
     .container {
@@ -50,7 +50,6 @@
       gap: 50px;
       width: 95%;
       max-width: 1400px;
-      position: relative;
     }
 
     .box {
@@ -61,7 +60,6 @@
       box-shadow: 0 10px 20px rgba(0,0,0,0.1);
       display: flex;
       flex-direction: column;
-      overflow-wrap: break-word;
       white-space: pre-wrap;
     }
 
@@ -83,21 +81,13 @@
       line-height: 1.5;
     }
 
-    .aktiviteter-box {
-      flex: 3;
-      min-height: 500px;
-    }
-
-    .maltid-box {
-      flex: 1;
-      min-height: 200px;
-      position: relative;
-    }
+    .aktiviteter-box { flex: 3; min-height: 500px; }
+    .maltid-box { flex: 1; min-height: 200px; }
 
     #alert-screen {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background-color: var(--main-color);
       color: white;
       font-size: 190px;
@@ -105,18 +95,18 @@
       justify-content: center;
       align-items: center;
       z-index: 9999;
-      user-select: none;
-      animation: blink 2s step-start 0s infinite;
+      animation: blink 2s step-start infinite;
     }
 
     #prelaunch-screen {
       display: none;
       position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
+      inset: 0;
       background-color: var(--main-color);
       color: white;
       font-size: 100px;
       font-weight: bold;
+      display: flex;
       justify-content: center;
       align-items: center;
       z-index: 9998;
@@ -129,140 +119,136 @@
     }
   </style>
 </head>
+
 <body>
-  <div class="header-container">
-    <div id="title">Laster plan...</div>
-    <div id="clock">--:--</div>
+
+<div class="header-container">
+  <div id="title">Laster plan...</div>
+  <div id="clock">--:--</div>
+</div>
+
+<div class="container">
+  <div class="box aktiviteter-box">
+    <h2>Aktiviteter</h2>
+    <div id="aktiviteter">Laster...</div>
   </div>
-
-  <div class="container">
-    <div class="box aktiviteter-box">
-      <h2>Aktiviteter</h2>
-      <div id="aktiviteter">Laster...</div>
-    </div>
-    <div class="box maltid-box">
-      <h2>Dagens måltid</h2>
-      <div id="maltid">Laster...</div>
-    </div>
+  <div class="box maltid-box">
+    <h2>Dagens måltid</h2>
+    <div id="maltid">Laster...</div>
   </div>
+</div>
 
-  <div id="alert-screen"></div>
-  <div id="prelaunch-screen">Planen for SFO kommer kl 12:30</div>
+<div id="alert-screen"></div>
+<div id="prelaunch-screen">Planen for SFO kommer kl 12:30</div>
 
-  <script>
-    const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSNj8UWFr0I5HTyyfMHJshWrdhD5mBKZkejn8qBKFuV3cMY2E2u92iadgpAg09Sd31m2Qgoz42w4-BN/pub?output=csv';
+<script>
+const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSNj8UWFr0I5HTyyfMHJshWrdhD5mBKZkejn8qBKFuV3cMY2E2u92iadgpAg09Sd31m2Qgoz42w4-BN/pub?output=csv';
 
-    let currentDay = null;
+let currentDay = null;
 
-    function updateThemeColor() {
-      const colors = {
-        'Mandag': '#2e8b57',
-        'Tirsdag': '#6a5acd',
-        'Onsdag': '#f39c12',
-        'Torsdag': '#c0392b',
-        'Fredag': '#16a085',
-        'Lørdag': '#34495e',
-        'Søndag': '#8e44ad'
-      };
+function updateThemeColor() {
+  const colors = {
+    'Mandag': '#2e8b57',
+    'Tirsdag': '#6a5acd',
+    'Onsdag': '#f39c12',
+    'Torsdag': '#c0392b',
+    'Fredag': '#16a085',
+    'Lørdag': '#34495e',
+    'Søndag': '#8e44ad'
+  };
+
+  const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  const today = dayNames[new Date().getDay()];
+
+  if (today !== currentDay) {
+    currentDay = today;
+    document.documentElement.style.setProperty('--main-color', colors[today]);
+  }
+}
+
+function loadPlan() {
+  fetch(csvUrl)
+    .then(res => res.text())
+    .then(csvText => {
+      const parsed = Papa.parse(csvText, { header: true });
+      const rows = parsed.data;
 
       const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
       const today = dayNames[new Date().getDay()];
+      const todayRow = rows.find(row => row.Dag && row.Dag.trim() === today);
 
-      if (today !== currentDay) {
-        currentDay = today;
-        const chosenColor = colors[today] || '#4a90e2';
-        document.documentElement.style.setProperty('--main-color', chosenColor);
+      if (todayRow) {
+        document.getElementById('title').innerText = `${today} – SFO - plan for dagen`;
+
+        const aktiviteter = todayRow.Aktiviteter
+          ? todayRow.Aktiviteter.split(',').map(a => '• ' + a.trim()).join('\n')
+          : '';
+
+        document.getElementById('aktiviteter').textContent = aktiviteter;
+        document.getElementById('maltid').innerText =
+          todayRow['Dagens måltid'] ? todayRow['Dagens måltid'].trim() : '';
       }
-    }
+    })
+    .catch(() => {
+      document.getElementById('title').innerText = 'Feil ved lasting av data';
+    });
+}
 
-    function loadPlan() {
-      fetch(csvUrl)
-        .then(res => res.text())
-        .then(csvText => {
-          const parsed = Papa.parse(csvText, { header: true });
-          const rows = parsed.data;
-
-          const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
-          const today = dayNames[new Date().getDay()];
-
-          const todayRow = rows.find(row => row.Dag && row.Dag.trim() === today);
-
-          if (todayRow) {
-            document.getElementById('title').innerText = `${today} – SFO - plan for dagen`;
-
-            const aktiviteter = todayRow.Aktiviteter
-              ? todayRow.Aktiviteter.split(',').map(a => '• ' + a.trim()).join('\n')
-              : '';
-
-            document.getElementById('aktiviteter').textContent = aktiviteter;
-            document.getElementById('maltid').innerText =
-              todayRow['Dagens måltid'] ? todayRow['Dagens måltid'].trim() : '';
-          } else {
-            document.getElementById('title').innerText = `${today} – Ingen plan funnet`;
-            document.getElementById('aktiviteter').innerText = '';
-            document.getElementById('maltid').innerText = '';
-          }
-        })
-        .catch(error => {
-          document.getElementById('title').innerText = 'Feil ved lasting av data';
-          console.error(error);
-        });
-    }
-
-    function updateClock() {
-      const now = new Date();
-      document.getElementById('clock').textContent =
-        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    }
-
-    const alertTimes = ["14:30","15:00","15:15","15:30","15:45","16:00"];
-
-    function updateAlert() {
-      const now = new Date();
-      const alertScreen = document.getElementById("alert-screen");
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-      const activeAlert = alertTimes.find(time => {
-        const [h, m] = time.split(':').map(Number);
-        const tMinutes = h * 60 + m;
-        return Math.abs(tMinutes - currentMinutes) <= 1;
-      });
-
-      if (activeAlert) {
-        alertScreen.style.display = "flex";
-        alertScreen.textContent = activeAlert;
-      } else {
-        alertScreen.style.display = "none";
-      }
-    }
-
-    function updatePrelaunchScreen() {
-      const now = new Date();
-      const currentMinutes = now.getHours() * 60 + now.getMinutes();
-
-      const prelaunchStart = 20 * 60;
-      const prelaunchEnd = 12 * 60 + 30;
-      let showPrelaunch;
-
-      if (prelaunchStart <= prelaunchEnd) {
-        showPrelaunch = currentMinutes >= prelaunchStart && currentMinutes < prelaunchEnd;
-      } else {
-        showPrelaunch = currentMinutes >= prelaunchStart || currentMinutes < prelaunchEnd;
-      }
-
-      document.getElementById("prelaunch-screen").style.display =
-        showPrelaunch ? "flex" : "none";
-    }
-
-  function autoScheduledRefresh() {
+function updateClock() {
   const now = new Date();
-  const minutes = now.getMinutes();
-  const seconds = now.getSeconds();
+  document.getElementById('clock').textContent =
+    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+}
 
-  if (minutes === 0 && seconds < 5) {
+const alertTimes = ["14:30","15:00","15:15","15:30","15:45","16:00"];
+
+function updateAlert() {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const alertScreen = document.getElementById("alert-screen");
+
+  const activeAlert = alertTimes.find(time => {
+    const [h, m] = time.split(':').map(Number);
+    return Math.abs((h*60+m) - currentMinutes) <= 1;
+  });
+
+  if (activeAlert) {
+    alertScreen.style.display = "flex";
+    alertScreen.textContent = activeAlert;
+  } else {
+    alertScreen.style.display = "none";
+  }
+}
+
+function updatePrelaunchScreen() {
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const start = 20 * 60;
+  const end = 12 * 60 + 30;
+
+  const show = start <= end
+    ? currentMinutes >= start && currentMinutes < end
+    : currentMinutes >= start || currentMinutes < end;
+
+  document.getElementById("prelaunch-screen").style.display = show ? "flex" : "none";
+}
+
+/* ====== STABIL TIME-REFRESH ====== */
+
+let lastRefreshHour = null;
+
+function autoScheduledRefresh() {
+  const now = new Date();
+  const hour = now.getHours();
+  const minutes = now.getMinutes();
+
+  if (minutes === 0 && lastRefreshHour !== hour) {
+    lastRefreshHour = hour;
     location.reload();
   }
 }
+
+/* ====== START ====== */
 
 updateThemeColor();
 loadPlan();
@@ -275,8 +261,8 @@ setInterval(loadPlan, 5 * 60 * 1000);
 setInterval(updateClock, 1000);
 setInterval(updateAlert, 1000);
 setInterval(updatePrelaunchScreen, 1000);
-setInterval(autoScheduledRefresh, 1000);
+setInterval(autoScheduledRefresh, 60 * 1000);
 
-   
+</script>
 </body>
 </html>
