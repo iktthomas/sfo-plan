@@ -254,26 +254,29 @@
         showPrelaunch ? "flex" : "none";
     }
 
-    let lastRefreshKey = null;
+  function autoScheduledRefresh() {
+  const now = new Date();
+  const minutes = now.getMinutes();
+  const seconds = now.getSeconds();
 
-    
-    function autoScheduledRefresh() {
-  location.reload();
+  if (minutes === 0 && seconds < 5) {
+    location.reload();
+  }
 }
+
+updateThemeColor();
+loadPlan();
+updateClock();
+updateAlert();
+updatePrelaunchScreen();
+
+setInterval(updateThemeColor, 60 * 1000);
+setInterval(loadPlan, 5 * 60 * 1000);
+setInterval(updateClock, 1000);
+setInterval(updateAlert, 1000);
+setInterval(updatePrelaunchScreen, 1000);
+setInterval(autoScheduledRefresh, 1000);
+
    
-
-    updateThemeColor();
-    loadPlan();
-    updateClock();
-    updateAlert();
-    updatePrelaunchScreen();
-
-    setInterval(updateThemeColor, 60 * 1000);
-    setInterval(loadPlan, 5 * 60 * 1000);
-    setInterval(updateClock, 1000);
-    setInterval(updateAlert, 1000);
-    setInterval(updatePrelaunchScreen, 1000);
-    setInterval(autoScheduledRefresh, 60 * 1000);
-  </script>
 </body>
 </html>
