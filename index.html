@@ -40,7 +40,6 @@
       font-size: 64px;
       font-weight: bold;
       color: #333;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
       user-select: none;
       position: static;
     }
@@ -167,7 +166,7 @@
       };
 
       const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
-      const today = dayNames[new Date().getDay()]
+      const today = dayNames[new Date().getDay()];
 
       if (today !== currentDay) {
         currentDay = today;
@@ -196,9 +195,8 @@
               : '';
 
             document.getElementById('aktiviteter').textContent = aktiviteter;
-            document.getElementById('maltid').innerText = todayRow['Dagens måltid']
-              ? todayRow['Dagens måltid'].trim()
-              : '';
+            document.getElementById('maltid').innerText =
+              todayRow['Dagens måltid'] ? todayRow['Dagens måltid'].trim() : '';
           } else {
             document.getElementById('title').innerText = `${today} – Ingen plan funnet`;
             document.getElementById('aktiviteter').innerText = '';
@@ -217,7 +215,7 @@
         now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
     }
 
-    const alertTimes = ["14:30", "15:00", "15:15", "15:30", "15:45", "16:00"];
+    const alertTimes = ["14:30","15:00","15:15","15:30","15:45","16:00"];
 
     function updateAlert() {
       const now = new Date();
@@ -256,6 +254,24 @@
         showPrelaunch ? "flex" : "none";
     }
 
+    let lastRefreshKey = null;
+
+    function autoScheduledRefresh() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const key = now.toDateString() + "-" + hours;
+
+      const isRefreshTime =
+        (hours === 3 && minutes === 0) ||
+        (hours === 12 && minutes === 0);
+
+      if (isRefreshTime && lastRefreshKey !== key) {
+        lastRefreshKey = key;
+        location.reload();
+      }
+    }
+
     updateThemeColor();
     loadPlan();
     updateClock();
@@ -267,6 +283,7 @@
     setInterval(updateClock, 1000);
     setInterval(updateAlert, 1000);
     setInterval(updatePrelaunchScreen, 1000);
+    setInterval(autoScheduledRefresh, 60 * 1000);
   </script>
 </body>
 </html>
