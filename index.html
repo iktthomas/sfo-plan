@@ -1,261 +1,348 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-<meta charset="UTF-8" />
-<title>Plan for dagen</title>
-<script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <meta charset="UTF-8" />
+  <title>Plan for dagen</title>
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+  <style>
+    :root {
+      --main-color: #4a90e2;
+    }
 
-<style>
-:root { --main-color: #4a90e2; }
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f5f8fa;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
 
-body {
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f8fa;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  user-select: none;
+    .header-container {
+      width: 95%;
+      max-width: 1400px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 40px 0 20px;
+      user-select: none;
+    }
+
+    #title {
+      font-size: 64px;
+      color: #333;
+      font-weight: bold;
+      margin: 0;
+    }
+
+    #clock {
+      font-size: 64px;
+      font-weight: bold;
+      color: #333;
+      user-select: none;
+      position: static;
+    }
+
+    .container {
+      display: flex;
+      justify-content: center;
+      gap: 50px;
+      width: 95%;
+      max-width: 1400px;
+      position: relative;
+    }
+
+    .box {
+      background: #fff;
+      border: 4px solid var(--main-color);
+      border-radius: 20px;
+      padding: 40px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+      display: flex;
+      flex-direction: column;
+      overflow-wrap: break-word;
+      white-space: pre-wrap;
+    }
+
+    .box h2 {
+      margin: 0 0 25px;
+      font-size: 32px;
+      text-align: center;
+      background-color: var(--main-color);
+      color: white;
+      padding: 12px;
+      border-radius: 15px;
+      font-weight: bold;
+    }
+
+    #aktiviteter, #maltid {
+      font-size: 32px;
+      color: #333;
+      font-weight: bold;
+      line-height: 1.5;
+    }
+
+    .aktiviteter-box {
+      flex: 3;
+      min-height: 400px;
+    }
+
+    .maltid-box {
+      flex: 1;
+      min-height: 200px;
+      position: relative;
+    }
+
+    #alert-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--main-color);
+      color: white;
+      font-size: 190px;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      user-select: none;
+      animation: blink 2s step-start 0s infinite;
+    }
+
+    #prelaunch-screen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--main-color);
+      color: white;
+      font-size: 100px;
+      font-weight: bold;
+      justify-content: center;
+      align-items: center;
+      z-index: 9998;
+      text-align: center;
+    }
+.centered-sitat {
+  margin-top: 15px;
+  width: 60%;
+  max-width: 900px;
+    min-height: 160px;
 }
 
-.header-container {
-  width: 95%;
-  max-width: 1400px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin: 40px 0 20px;
-}
-
-#title { font-size: 64px; font-weight: bold; margin: 0; }
-#clock { font-size: 64px; font-weight: bold; }
-
-.container {
-  display: flex;
-  justify-content: center;
-  gap: 50px;
-  width: 95%;
-  max-width: 1400px;
-}
-
-.box {
-  background: #fff;
-  border: 4px solid var(--main-color);
-  border-radius: 20px;
-  padding: 40px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  white-space: pre-wrap;
-}
-
-.box h2 {
-  margin: 0 0 25px;
-  font-size: 32px;
+.sitat-box {
   text-align: center;
-  background-color: var(--main-color);
-  color: white;
-  padding: 12px;
-  border-radius: 15px;
-  font-weight: bold;
 }
 
-#aktiviteter, #maltid { font-size: 32px; font-weight: bold; }
-
-.aktiviteter-box { flex: 3; min-height: 500px; }
-.maltid-box { flex: 1; min-height: 200px; }
-
-#alert-screen {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background-color: var(--main-color);
-  color: white;
-  font-size: 190px;
-  font-weight: bold;
-  justify-content: center;
-  align-items: center;
-  z-index: 9999;
-  animation: blink 2s step-start infinite;
+#daily-quote {
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.6;
 }
+      
 
-#prelaunch-screen {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background-color: var(--main-color);
-  color: white;
-  font-size: 100px;
-  font-weight: bold;
-  justify-content: center;
-  align-items: center;
-  z-index: 9998;
-  text-align: center;
-}
-
-@keyframes blink {
-  50% { opacity: 0; }
-  100% { opacity: 1; }
-}
-</style>
+    @keyframes blink {
+      50% { opacity: 0; }
+      100% { opacity: 1; }
+    }
+  </style>
 </head>
-
 <body>
-
-<div class="header-container">
-  <div id="title">Laster plan...</div>
-  <div id="clock">--:--</div>
-</div>
+  <div class="header-container">
+    <div id="title">Laster plan...</div>
+    <div id="clock">--:--</div>
+  </div>
 
 <div class="container">
   <div class="box aktiviteter-box">
     <h2>Aktiviteter</h2>
     <div id="aktiviteter">Laster...</div>
   </div>
+
   <div class="box maltid-box">
     <h2>Dagens måltid</h2>
     <div id="maltid">Laster...</div>
   </div>
 </div>
 
-<div id="alert-screen"></div>
-<div id="prelaunch-screen">Planen for SFO kommer kl 12:30</div>
+<!-- NY BOKS UNDER -->
+<div class="box sitat-box centered-sitat">
+  <h2>Dagens sitat</h2>
+  <div id="daily-quote">Laster...</div>
+</div>
 
-<script>
+  <div id="alert-screen"></div>
+  <div id="prelaunch-screen">Planen for SFO kommer kl 12:30</div>
 
-const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNj8UWFr0I5HTyyfMHJshWrdhD5mBKZkejn8qBKFuV3cMY2E2u92iadgpAg09Sd31m2Qgoz42w4-BN/pub?output=csv&gid=0";
+  <script>
+    const csvUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vSNj8UWFr0I5HTyyfMHJshWrdhD5mBKZkejn8qBKFuV3cMY2E2u92iadgpAg09Sd31m2Qgoz42w4-BN/pub?output=csv";
+const quoteUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFrPk1NaXwz4y55-K_6cXmi0LDBG-HFnzx5D0gbKEPDKiyjwrm0YD66LX-6F6I3yBYlj4qZ9WOE8iW/pub?output=csv&gid=0";
+    let currentDay = null;
 
-let currentDay = null;
-let lastRefreshHour = null;
+    function updateThemeColor() {
+      const colors = {
+        'Mandag': '#2e8b57',
+        'Tirsdag': '#6a5acd',
+        'Onsdag': '#f39c12',
+        'Torsdag': '#c0392b',
+        'Fredag': '#16a085',
+        'Lørdag': '#34495e',
+        'Søndag': '#8e44ad'
+      };
 
-/* ===== FARGE ===== */
-function updateThemeColor() {
-  const colors = {
-    'Mandag': '#2e8b57',
-    'Tirsdag': '#6a5acd',
-    'Onsdag': '#f39c12',
-    'Torsdag': '#c0392b',
-    'Fredag': '#16a085',
-    'Lørdag': '#34495e',
-    'Søndag': '#8e44ad'
-  };
-  const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
-  const today = dayNames[new Date().getDay()];
-  if (today !== currentDay) {
-    currentDay = today;
-    document.documentElement.style.setProperty('--main-color', colors[today]);
-  }
-}
-
-/* ===== LOAD PLAN ===== */
-function loadPlan() {
-  fetch(csvUrl)
-    .then(res => res.text())
-    .then(csvText => {
-      const parsed = Papa.parse(csvText, { header: true });
-      const rows = parsed.data;
       const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
       const today = dayNames[new Date().getDay()];
-      const todayRow = rows.find(row => row.Dag && row.Dag.trim() === today);
 
-      if (todayRow) {
-        document.getElementById('title').innerText = `${today} – SFO - plan for dagen`;
-        const aktiviteter = todayRow.Aktiviteter
-          ? todayRow.Aktiviteter.split(',').map(a => '• ' + a.trim()).join('\n')
-          : '';
-        document.getElementById('aktiviteter').textContent = aktiviteter;
-        document.getElementById('maltid').innerText =
-          todayRow['Dagens måltid'] ? todayRow['Dagens måltid'].trim() : '';
+      if (today !== currentDay) {
+        currentDay = today;
+        const chosenColor = colors[today] || '#4a90e2';
+        document.documentElement.style.setProperty('--main-color', chosenColor);
       }
+    }
+
+    function loadPlan() {
+      fetch(csvUrl)
+        .then(res => res.text())
+        .then(csvText => {
+          const parsed = Papa.parse(csvText, { header: true });
+          const rows = parsed.data;
+
+          const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+          const today = dayNames[new Date().getDay()];
+
+          const todayRow = rows.find(row => row.Dag && row.Dag.trim() === today);
+
+          if (todayRow) {
+            document.getElementById('title').innerText = `${today} – SFO - plan for dagen`;
+
+            const aktiviteter = todayRow.Aktiviteter
+              ? todayRow.Aktiviteter.split(',').map(a => '• ' + a.trim()).join('\n')
+              : '';
+
+            document.getElementById('aktiviteter').textContent = aktiviteter;
+            document.getElementById('maltid').innerText =
+              todayRow['Dagens måltid'] ? todayRow['Dagens måltid'].trim() : '';
+          } else {
+            document.getElementById('title').innerText = `${today} – Ingen plan funnet`;
+            document.getElementById('aktiviteter').innerText = '';
+            document.getElementById('maltid').innerText = '';
+          }
+        })
+        .catch(error => {
+          document.getElementById('title').innerText = 'Feil ved lasting av data';
+          console.error(error);
+        });
+    }
+function loadQuotes() {
+
+  const todayKey = new Date().toDateString();
+
+  const savedQuote = localStorage.getItem("dailyQuote");
+  const savedDate = localStorage.getItem("quoteDate");
+
+  if (savedDate === todayKey && savedQuote) {
+    document.getElementById("daily-quote").innerText = savedQuote;
+    return;
+  }
+
+  fetch(quoteUrl)
+    .then(res => res.text())
+    .then(csvText => {
+
+      const parsed = Papa.parse(csvText, { header: true });
+      const rows = parsed.data;
+
+      const quotes = rows
+        .map(row => row.Sitat)
+        .filter(q => q && q.trim() !== "");
+
+      const randomQuote =
+        quotes[Math.floor(Math.random() * quotes.length)];
+
+      document.getElementById("daily-quote").innerText = randomQuote;
+
+      localStorage.setItem("dailyQuote", randomQuote);
+      localStorage.setItem("quoteDate", todayKey);
+
     });
 }
+  
 
-/* ===== CLOCK ===== */
-function updateClock() {
-  const now = new Date();
-  document.getElementById('clock').textContent =
-    now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
+    function updateClock() {
+      const now = new Date();
+      document.getElementById('clock').textContent =
+        now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
 
-/* ===== ALERT ===== */
-const alertTimes = ["14:30","15:00","15:15","15:30","15:45","16:00"];
+    const alertTimes = ["14:30","15:00","15:15","15:30","15:45","16:00"];
 
-function updateAlert() {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const alertScreen = document.getElementById("alert-screen");
+    function updateAlert() {
+      const now = new Date();
+      const alertScreen = document.getElementById("alert-screen");
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  const activeAlert = alertTimes.find(time => {
-    const [h, m] = time.split(':').map(Number);
-    return Math.abs((h*60+m) - currentMinutes) <= 1;
-  });
+      const activeAlert = alertTimes.find(time => {
+        const [h, m] = time.split(':').map(Number);
+        const tMinutes = h * 60 + m;
+        return Math.abs(tMinutes - currentMinutes) <= 1;
+      });
 
-  if (activeAlert) {
-    alertScreen.style.display = "flex";
-    alertScreen.textContent = activeAlert;
-  } else {
-    alertScreen.style.display = "none";
-  }
-}
+      if (activeAlert) {
+        alertScreen.style.display = "flex";
+        alertScreen.textContent = activeAlert;
+      } else {
+        alertScreen.style.display = "none";
+      }
+    }
 
-/* ===== PRELAUNCH ===== */
-function updatePrelaunchScreen() {
-  const now = new Date();
-  const currentMinutes = now.getHours() * 60 + now.getMinutes();
-  const start = 20 * 60;
-  const end = 11 * 60 + 30;
-  const show = start <= end
-    ? currentMinutes >= start && currentMinutes < end
-    : currentMinutes >= start || currentMinutes < end;
+    function updatePrelaunchScreen() {
+      const now = new Date();
+      const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-  document.getElementById("prelaunch-screen").style.display = show ? "flex" : "none";
-}
+      const prelaunchStart = 20 * 60;
+      const prelaunchEnd = 09 * 60 + 30;
+      let showPrelaunch;
 
-/* ===== TIME REFRESH ===== */
-function autoScheduledRefresh() {
-  const now = new Date();
-  const hour = now.getHours();
-  const minutes = now.getMinutes();
-  if (minutes === 0 && lastRefreshHour !== hour) {
-    lastRefreshHour = hour;
-    location.reload();
-  }
-}
+      if (prelaunchStart <= prelaunchEnd) {
+        showPrelaunch = currentMinutes >= prelaunchStart && currentMinutes < prelaunchEnd;
+      } else {
+        showPrelaunch = currentMinutes >= prelaunchStart || currentMinutes < prelaunchEnd;
+      }
 
-/* ===== MUSE SKJUL ===== */
-let mouseTimer;
-function hideCursor() { document.body.style.cursor = "none"; }
-function showCursor() {
-  document.body.style.cursor = "default";
-  clearTimeout(mouseTimer);
-  mouseTimer = setTimeout(hideCursor, 3000);
-}
-document.addEventListener("mousemove", showCursor);
-mouseTimer = setTimeout(hideCursor, 3000);
+      document.getElementById("prelaunch-screen").style.display =
+        showPrelaunch ? "flex" : "none";
+    }
 
-/* ===== KIOSK LÅS ===== */
-document.addEventListener("contextmenu", e => e.preventDefault());
-document.addEventListener("selectstart", e => e.preventDefault());
-document.addEventListener("keydown", function(e) {
-  if (e.ctrlKey) e.preventDefault();
-  if (e.key === "F11") e.preventDefault();
-});
+    let lastRefreshKey = null;
 
-/* ===== START ===== */
-updateThemeColor();
-loadPlan();
-updateClock();
-updateAlert();
-updatePrelaunchScreen();
+    function autoScheduledRefresh() {
+      const now = new Date();
+      const hours = now.getHours();
+      const minutes = now.getMinutes();
+      const key = now.toDateString() + "-" + hours;
 
-setInterval(updateThemeColor, 60000);
-setInterval(loadPlan, 120000);
-setInterval(updateClock, 1000);
-setInterval(updateAlert, 1000);
-setInterval(updatePrelaunchScreen, 1000);
-setInterval(autoScheduledRefresh, 60000);
+      const isRefreshTime =
+        (hours === 3 && minutes === 0) ||
+        (hours === 12 && minutes === 0);
 
-</script>
+      if (isRefreshTime && lastRefreshKey !== key) {
+        lastRefreshKey = key;
+        location.reload();
+      }
+    }
+
+    updateThemeColor();
+    loadPlan();
+    loadQuotes();
+    updateClock();
+    updateAlert();
+    updatePrelaunchScreen();
+
+    setInterval(updateThemeColor, 60 * 1000);
+    setInterval(loadPlan, 2 * 60 * 1000);
+    setInterval(updateClock, 1000);
+    setInterval(updateAlert, 1000);
+    setInterval(updatePrelaunchScreen, 1000);
+    setInterval(autoScheduledRefresh, 60 * 1000);
+  </script>
 </body>
 </html>
