@@ -204,7 +204,7 @@ function updatePrelaunchScreen() {
   const now = new Date();
   const currentMinutes = now.getHours() * 60 + now.getMinutes();
   const start = 20 * 60;
-  const end = 12 * 60 + 30;
+  const end = 11 * 60 + 30;
   const show = start <= end
     ? currentMinutes >= start && currentMinutes < end
     : currentMinutes >= start || currentMinutes < end;
