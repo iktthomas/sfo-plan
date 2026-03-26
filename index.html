@@ -178,26 +178,62 @@
 const quoteUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vRFrPk1NaXwz4y55-K_6cXmi0LDBG-HFnzx5D0gbKEPDKiyjwrm0YD66LX-6F6I3yBYlj4qZ9WOE8iW/pub?output=csv&gid=0";
     let currentDay = null;
 
+      
+   function isEasterSpecialDay() {
+  const now = new Date();
+  return now.getDate() === 26 && now.getMonth() === 2; // mars = 2
+}
+
     function updateThemeColor() {
-      const colors = {
-        'Mandag': '#2e8b57',
-        'Tirsdag': '#6a5acd',
-        'Onsdag': '#f39c12',
-        'Torsdag': '#c0392b',
-        'Fredag': '#16a085',
-        'Lørdag': '#34495e',
-        'Søndag': '#8e44ad'
-      };
+  if (isEasterSpecialDay()) {
+    document.documentElement.style.setProperty('--main-color', '#f1c40f');
+    return;
+  }
 
-      const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
-      const today = dayNames[new Date().getDay()];
+  const colors = {
+    'Mandag': '#2e8b57',
+    'Tirsdag': '#6a5acd',
+    'Onsdag': '#f39c12',
+    'Torsdag': '#c0392b',
+    'Fredag': '#16a085',
+    'Lørdag': '#34495e',
+    'Søndag': '#8e44ad'
+  };
 
-      if (today !== currentDay) {
-        currentDay = today;
-        const chosenColor = colors[today] || '#4a90e2';
-        document.documentElement.style.setProperty('--main-color', chosenColor);
+  const dayNames = ['Søndag','Mandag','Tirsdag','Onsdag','Torsdag','Fredag','Lørdag'];
+  const today = dayNames[new Date().getDay()];
+
+  document.documentElement.style.setProperty('--main-color', colors[today]);
+}
+
+       function startEasterRain() {
+  const emojis = ["🐣","🥚","🐥"];
+
+  setInterval(() => {
+    const el = document.createElement("div");
+    el.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+
+    el.style.position = "fixed";
+    el.style.top = "-50px";
+    el.style.left = Math.random() * window.innerWidth + "px";
+    el.style.fontSize = "32px";
+    el.style.pointerEvents = "none";
+    el.style.zIndex = 9999;
+
+    document.body.appendChild(el);
+
+    let pos = -50;
+    const fall = setInterval(() => {
+      pos += 3;
+      el.style.top = pos + "px";
+
+      if (pos > window.innerHeight) {
+        clearInterval(fall);
+        el.remove();
       }
-    }
+    }, 20);
+  }, 400); // juster hastighet her
+}
 
     function loadPlan() {
       fetch(csvUrl)
@@ -298,7 +334,7 @@ function loadQuotes() {
       const now = new Date();
       const currentMinutes = now.getHours() * 60 + now.getMinutes();
 
-      const prelaunchStart = 20 * 60;
+      const prelaunchStart = 17 * 60;
       const prelaunchEnd = 12 * 60 + 30;
       let showPrelaunch;
 
@@ -343,6 +379,10 @@ function loadQuotes() {
     setInterval(updateAlert, 1000);
     setInterval(updatePrelaunchScreen, 1000);
     setInterval(autoScheduledRefresh, 60 * 1000);
+      // 🐣 START PÅSKE-EFFEKT
+if (isEasterSpecialDay()) {
+  startEasterRain();
+}
   </script>
 </body>
 </html>
